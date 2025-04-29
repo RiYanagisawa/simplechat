@@ -23,7 +23,7 @@ bedrock_client = None
 MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
 
 #FastAPI url
-url = "https://9e3a-35-240-134-128.ngrok-free.app/generate"
+URL = "https://b3a9-34-125-148-168.ngrok-free.app/generate"
 
 def lambda_handler(event, context):
     try:
@@ -73,22 +73,34 @@ def lambda_handler(event, context):
                     "role": "assistant", 
                     "content": [{"text": msg["content"]}]
                 })
-        
-        # invoke_model用のリクエストペイロード
+            
+        # FastAPI用リクエストペイロード
         request_payload = {
             "prompt": bedrock_messages,
             "max_new_tokens": 512,
-            "do_sample": true,
             "temperature": 0.7,
-            "top_p": 0.9
-            }
+            "top_p": 0.9,
+            "do_sample": true
+        }
+
+        #ヘッダーの設定
+        headers = {
+            'Content-Type': 'application/json',
+            'accept': 'application/json'
+        }
         
-        print("Calling Bedrock invoke_model API with payload:", json.dumps(request_payload))
+        print("Calling Bedrock Fast API with payload:", json.dumps(request_payload))
         
-        # FastAPIを呼び出し
-        data = urllib.parse.urlencode(request_payload).encode()
-        req = urllib.request.Request(url, data=data)
-        response = urllib.request.urlopen(req)
+        # リクエストボディ
+        data = json.dumps(request_payload).encode('utf-8')
+
+        # リクエスト作成
+        global URL
+        req = urllib.request.Request(URL, data=data, headers=headers, method='POST')
+
+        # 送信＆レスポンス受け取り
+        with urllib.request.urlopen(req) as response:
+            response_data = response.read().decode('utf-8')
 
         """
         response = bedrock_client.invoke_model(
@@ -99,8 +111,8 @@ def lambda_handler(event, context):
         """
 
         # レスポンスを解析
-        response_body = json.loads(response["generated_text"].read().decode())
-        print("Bedrock response:", json.dumps(response_body, default=str))
+        response_body = json.loads(response["generated_text"])
+        print("FAST API response:", json.dumps(response_body, default=str))
         
         # 応答の検証
         if not response_body.get('output') or not response_body['output'].get('message') or not response_body['output']['message'].get('content'):
