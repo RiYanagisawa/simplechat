@@ -23,7 +23,7 @@ bedrock_client = None
 MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
 
 #FastAPI url
-url = "https://ff99-35-240-134-128.ngrok-free.app/"
+url = "https://9e3a-35-240-134-128.ngrok-free.app/generate"
 
 def lambda_handler(event, context):
     try:
