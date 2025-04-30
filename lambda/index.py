@@ -20,7 +20,7 @@ def extract_region_from_arn(arn):
 bedrock_client = None
 
 #FastAPI url
-URL = "https://c080-34-125-14-170.ngrok-free.app/generate"
+URL = "https://45b3-34-143-152-52.ngrok-free.app/generate"
 
 # モデルID
 MODEL_ID = URL
@@ -49,34 +49,10 @@ def lambda_handler(event, context):
         
         print("Processing message:", message)
         print("Using model:", MODEL_ID)
-        
-        # 会話履歴を使用
-        messages = conversation_history.copy()
-        
-        # ユーザーメッセージを追加
-        messages.append({
-            "role": "user",
-            "content": message
-        })
-        
-        # Nova Liteモデル用のリクエストペイロードを構築
-        # 会話履歴を含める
-        bedrock_messages = []
-        for msg in messages:
-            if msg["role"] == "user":
-                bedrock_messages.append({
-                    "role": "user",
-                    "content": [{"text": msg["content"]}]
-                })
-            elif msg["role"] == "assistant":
-                bedrock_messages.append({
-                    "role": "assistant", 
-                    "content": [{"text": msg["content"]}]
-                })
             
         # FastAPI用リクエストペイロード
         request_payload = {
-            "prompt": bedrock_messages,
+            "prompt": message,
             "max_new_tokens": 512,
             "temperature": 0.7,
             "top_p": 0.9,
@@ -89,7 +65,7 @@ def lambda_handler(event, context):
             'accept': 'application/json'
         }
         
-        print("Calling Bedrock Fast API with payload:", json.dumps(request_payload))
+        print("Calling Fast API with payload:", json.dumps(request_payload))
         
         # リクエストボディ
         data = json.dumps(request_payload).encode('utf-8')
