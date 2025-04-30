@@ -87,8 +87,8 @@ def lambda_handler(event, context):
         """
 
         # レスポンスを解析
-        response_body = json.loads(response["generated_text"])
-        print("FAST API response:", json.dumps(response_body, default=str))
+        response_body = json.loads(response_data)
+        print("FAST API response:", json.dumps(response_body["generated_text"], default=str))
         
         # 応答の検証
         if not response_body.get('output') or not response_body['output'].get('message') or not response_body['output']['message'].get('content'):
