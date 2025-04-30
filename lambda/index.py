@@ -19,11 +19,11 @@ def extract_region_from_arn(arn):
 # グローバル変数としてクライアントを初期化（初期値）
 bedrock_client = None
 
-# モデルID
-MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
-
 #FastAPI url
 URL = "https://b3a9-34-125-148-168.ngrok-free.app/generate"
+
+# モデルID
+MODEL_ID = URL
 
 def lambda_handler(event, context):
     try:
@@ -80,7 +80,7 @@ def lambda_handler(event, context):
             "max_new_tokens": 512,
             "temperature": 0.7,
             "top_p": 0.9,
-            "do_sample": true
+            "do_sample": True
         }
 
         #ヘッダーの設定
