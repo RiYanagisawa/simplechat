@@ -20,7 +20,7 @@ def extract_region_from_arn(arn):
 bedrock_client = None
 
 #FastAPI url
-URL = "https://b3a9-34-125-148-168.ngrok-free.app/generate"
+URL = "https://c080-34-125-14-170.ngrok-free.app/generate"
 
 # モデルID
 MODEL_ID = URL
