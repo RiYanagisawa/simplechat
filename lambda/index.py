@@ -20,7 +20,7 @@ def extract_region_from_arn(arn):
 bedrock_client = None
 
 #FastAPI url
-URL = "https://da8c-34-126-154-76.ngrok-free.app/generate"
+URL = "https://75e9-35-199-168-18.ngrok-free.app/generate"
 
 # モデルID
 MODEL_ID = URL
@@ -41,7 +41,7 @@ def lambda_handler(event, context):
         if 'requestContext' in event and 'authorizer' in event['requestContext']:
             user_info = event['requestContext']['authorizer']['claims']
             print(f"Authenticated user: {user_info.get('email') or user_info.get('cognito:username')}")
-        
+
         # リクエストボディの解析
         body = json.loads(event['body'])
         message = body['message']
@@ -49,6 +49,9 @@ def lambda_handler(event, context):
         
         print("Processing message:", message)
         print("Using model:", MODEL_ID)
+
+        # 会話履歴を使用
+        messages = conversation_history.copy()
             
         # FastAPI用リクエストペイロード
         request_payload = {
@@ -78,30 +81,9 @@ def lambda_handler(event, context):
         with urllib.request.urlopen(req) as response:
             response_data = response.read().decode('utf-8')
 
-        """
-        response = bedrock_client.invoke_model(
-            modelId=MODEL_ID,
-            body=json.dumps(request_payload),
-            contentType="application/json"
-        )
-        """
-
         # レスポンスを解析
         response_body = json.loads(response_data)
-        print("FAST API response:", json.dumps(response_body["generated_text"], default=str))
-        
-        # 応答の検証
-        if not response_body.get('output') or not response_body['output'].get('message') or not response_body['output']['message'].get('content'):
-            raise Exception("No response content from the model")
-        
-        # アシスタントの応答を取得
-        assistant_response = response_body['output']['message']['content'][0]['text']
-        
-        # アシスタントの応答を会話履歴に追加
-        messages.append({
-            "role": "assistant",
-            "content": assistant_response
-        })
+        print("FAST API response:", response_body["generated_text"])
         
         # 成功レスポンスの返却
         return {
@@ -114,7 +96,7 @@ def lambda_handler(event, context):
             },
             "body": json.dumps({
                 "success": True,
-                "response": assistant_response,
+                "response": response_body["generated_text"],
                 "conversationHistory": messages
             })
         }
